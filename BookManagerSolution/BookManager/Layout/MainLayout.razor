@@ -1,0 +1,23 @@
+﻿@inherits LayoutComponentBase
+
+<div class="main-layout">
+    <NavMenu />
+    <div class="main-content">
+        @Body
+    </div>
+</div>
+
+<style>
+    .main-layout {
+        display: flex;
+        width: 100%;
+        height: 100vh;
+    }
+
+    .main-content {
+        flex: 1;
+        margin-left: 250px; /* Debe coincidir con el ancho del NavMenu */
+        padding: 20px;
+        overflow-y: auto;
+    }
+</style>

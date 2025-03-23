@@ -1,0 +1,155 @@
+﻿@page "/create-author"
+@inject AuthorService AuthorService
+@inject NavigationManager Navigation
+
+<div class="container">
+    <div class="form-container">
+        <h3 class="form-title">Crear Autor</h3>
+
+        @if (message != null)
+        {
+            <div class="@(message.Contains("error") ? "alert alert-danger" : "alert alert-success")">
+                @message
+            </div>
+        }
+
+        <div class="form-group">
+            <label>Nombre Completo: <span class="required">*</span></label>
+            <input class="form-control" @bind="newAuthor.FullName" />
+        </div>
+        <div class="form-group">
+            <label>Fecha de Nacimiento: <span class="required">*</span></label>
+            <input class="form-control" type="date" @bind="newAuthor.DateOfBirth" />
+        </div>
+        <div class="form-group">
+            <label>Ciudad:</label>
+            <input class="form-control" @bind="newAuthor.City" />
+        </div>
+        <div class="form-group">
+            <label>Email: <span class="required">*</span></label>
+            <input class="form-control" @bind="newAuthor.Email" />
+        </div>
+        <div class="form-footer">
+            <button class="btn btn-secondary" @onclick="@(() => Navigation.NavigateTo("/authors"))">Cancelar</button>
+            <button class="btn btn-primary" @onclick="HandleCreateAuthor">Crear Autor</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private CreateAuthorDTO newAuthor = new CreateAuthorDTO();
+    private string message;
+
+    private async Task HandleCreateAuthor()
+    {
+        bool success = await AuthorService.CreateAuthorAsync(newAuthor);
+        message = success ? "Autor creado exitosamente" : "Error al crear el autor";
+        if (success) Navigation.NavigateTo("/authors");
+    }
+}
+
+<style>
+    .container {
+        margin-left: 270px; /* Espacio para el menú lateral */
+        padding: 20px;
+    }
+
+    .form-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 30px;
+    }
+
+    .form-title {
+        color: #2c3e50;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.25);
+    }
+
+    label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .required {
+        color: #e74c3c;
+        margin-left: 4px;
+    }
+
+    .form-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 30px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background-color 0.3s;
+    }
+
+    .btn-primary {
+        background-color: #3498db;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #2980b9;
+    }
+
+    .btn-secondary {
+        background-color: #95a5a6;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #7f8c8d;
+    }
+
+    .alert {
+        padding: 12px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+</style>

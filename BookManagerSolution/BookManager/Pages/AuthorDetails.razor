@@ -1,0 +1,249 @@
+﻿@page "/author/{Id:int}"
+@inject AuthorService AuthorService
+@inject NavigationManager Navigation
+
+
+<div class="author-details-container">
+    @if (author == null)
+    {
+        <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <p>Cargando información del autor...</p>
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-header">
+                <h3>Detalles del Autor</h3>
+                <div class="action-buttons">
+                    <button class="btn btn-warning" @onclick="@(() => Navigation.NavigateTo($"/edit-author/{Id}"))">
+                        ✏️ Editar
+                    </button>
+                    <button class="btn btn-secondary" @onclick="@(() => Navigation.NavigateTo("/authors"))">
+
+                        ⬅️ Volver
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <div class="author-info">
+                    <div class="info-row">
+                        <div class="info-label">Nombre Completo:</div>
+                        <div class="info-value">@author.FullName</div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <div class="info-label">Email:</div>
+                        <div class="info-value">
+                            <a href="mailto:@author.Email">@author.Email</a>
+                        </div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <div class="info-label">Ciudad:</div>
+                        <div class="info-value">
+                            @(string.IsNullOrEmpty(author.City) ? "No especificado" : author.City)
+                        </div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <div class="info-label">Fecha de Nacimiento:</div>
+                        <div class="info-value">
+                            @(author.DateOfBirth != default ? author.DateOfBirth.ToString("dd/MM/yyyy") : "No especificado")
+                        </div>
+                    </div>
+                </div>
+
+                @if (authorBooks != null && authorBooks.Any())
+                {
+                    <div class="author-books">
+                        <h4>Libros del Autor</h4>
+                        <ul class="books-list">
+                            @foreach (var book in authorBooks)
+                            {
+                                <li class="book-item">
+                                    <span class="book-title">@book.Title</span>
+                                    <span class="book-year">(@book.Year)</span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <div class="no-books">
+                        <p>Este autor no tiene libros registrados.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Author author;
+    private List<Book> authorBooks;
+
+    protected override async Task OnInitializedAsync()
+    {
+        author = await AuthorService.GetAuthorByIdAsync(Id);
+        authorBooks = await AuthorService.GetAuthorBooksAsync(Id);
+    }
+}
+
+
+<style>
+    .author-details-container {
+        padding: 20px;
+    }
+
+    .card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+    .card-header {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-header h3 {
+        margin: 0;
+        color: #2c3e50;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-warning {
+        background-color: #ffc107;
+        color: #212529;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .btn:hover {
+        opacity: 0.9;
+    }
+
+    .author-info {
+        margin-bottom: 30px;
+    }
+
+    .info-row {
+        display: flex;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #f0f0f0;
+        padding-bottom: 10px;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: #495057;
+        width: 180px;
+    }
+
+    .info-value {
+        flex: 1;
+    }
+
+    .info-value a {
+        color: #3498db;
+        text-decoration: none;
+    }
+
+    .info-value a:hover {
+        text-decoration: underline;
+    }
+
+    .author-books {
+        margin-top: 30px;
+    }
+
+    .author-books h4 {
+        color: #2c3e50;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .books-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .book-item {
+        padding: 10px 15px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .book-title {
+        font-weight: 500;
+    }
+
+    .book-year {
+        color: #6c757d;
+        margin-left: 10px;
+    }
+
+    .no-books {
+        margin-top: 30px;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        color: #6c757d;
+        text-align: center;
+    }
+
+    .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 0;
+    }
+
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-left-color: #3498db;
+        animation: spin 1s linear infinite;
+        margin-bottom: 15px;
+    }
+
+    @@keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>

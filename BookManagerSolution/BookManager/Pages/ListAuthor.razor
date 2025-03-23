@@ -1,0 +1,273 @@
+﻿@page "/authors"
+@inject AuthorService AuthorService
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<div class="authors-container">
+    <div class="header">
+        <h3>Lista de Autores</h3>
+        <button class="btn btn-primary" @onclick="NavigateToCreateAuthor">
+            <span class="btn-icon">➕</span> Nuevo Autor
+        </button>
+    </div>
+
+    @if (authors == null)
+    {
+        <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <p>Cargando autores...</p>
+        </div>
+    }
+    else if (authors.Count == 0)
+    {
+        <div class="empty-state">
+            <p>No hay autores registrados.</p>
+            <button class="btn btn-outline" @onclick="NavigateToCreateAuthor">
+                Agregar tu primer autor
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="authors-table">
+                <thead>
+                    <tr>
+                        <th>Nombre Completo</th>
+                        <th>Email</th>
+                        <th>Ciudad</th>
+                        <th>Fecha de Nacimiento</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var author in authors)
+                    {
+                        <tr>
+                            <td><strong>@author.FullName</strong></td>
+                            <td><a href="mailto:@author.Email">@author.Email</a></td>
+                            <td>@(string.IsNullOrEmpty(author.City) ? "---" : author.City)</td>
+                            <td>@(author.DateOfBirth != DateTime.MinValue ? author.DateOfBirth.ToString("dd/MM/yyyy") : "---")</td>
+
+                            <td class="actions-column">
+                                <button class="btn btn-icon btn-info" @onclick="() => ViewAuthorDetails(author.Id)" title="Ver detalles">
+                                    👁️
+                                </button>
+                                <button class="btn btn-icon btn-warning" @onclick="() => EditAuthor(author.Id)" title="Editar">
+                                    ✏️
+                                </button>
+                                <button class="btn btn-icon btn-danger" @onclick="() => DeleteAuthor(author.Id)" title="Eliminar">
+                                    🗑️
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination">
+            <span>Total: @authors.Count autores</span>
+        </div>
+    }
+</div>
+
+@code {
+    private List<Author> authors;
+
+    protected override async Task OnInitializedAsync()
+    {
+        authors = await AuthorService.GetAuthorsAsync();
+    }
+
+    private void NavigateToCreateAuthor()
+    {
+        Navigation.NavigateTo("/create-author");
+    }
+
+    private void ViewAuthorDetails(int authorId)
+    {
+        Navigation.NavigateTo($"/author/{authorId}");
+    }
+
+    private void EditAuthor(int authorId)
+    {
+        Navigation.NavigateTo($"/edit-author/{authorId}");
+    }
+
+    private async Task DeleteAuthor(int authorId)
+    {
+        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", new object[] { "¿Estás seguro de que deseas eliminar este autor?" });
+
+
+        if (confirmed)
+        {
+            bool success = await AuthorService.DeleteAuthorAsync(authorId);
+            if (success)
+            {
+                authors = await AuthorService.GetAuthorsAsync();
+                StateHasChanged();
+            }
+        }
+    }
+}
+
+<style>
+    .authors-container {
+        padding: 20px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+    }
+
+        .header h3 {
+            margin: 0;
+            color: #2c3e50;
+        }
+
+    .authors-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+        .authors-table th, .authors-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .authors-table th {
+            background-color: #f8f9fa;
+            color: #495057;
+            font-weight: 600;
+        }
+
+        .authors-table tr:hover {
+            background-color: #f5f9fc;
+        }
+
+    .actions-column {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background-color: #3498db;
+        color: white;
+    }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+    .btn-icon {
+        padding: 6px 8px;
+        font-size: 14px;
+    }
+
+    .btn-info {
+        background-color: #17a2b8;
+        color: white;
+    }
+
+    .btn-warning {
+        background-color: #ffc107;
+        color: #212529;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn-outline {
+        background-color: transparent;
+        border: 1px solid #3498db;
+        color: #3498db;
+    }
+
+        .btn-outline:hover {
+            background-color: #3498db;
+            color: white;
+        }
+
+    .btn-icon:hover {
+        transform: scale(1.1);
+    }
+
+    .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 0;
+    }
+
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-left-color: #3498db;
+        animation: spin 1s linear infinite;
+        margin-bottom: 15px;
+    }
+
+    @@keyframes spin {
+        0%
+
+    {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 0;
+        color: #6c757d;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: flex-end;
+        padding: 10px 0;
+        color: #6c757d;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .btn-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .btn-icon span {
+            margin-right: 5px;
+        }
+</style>

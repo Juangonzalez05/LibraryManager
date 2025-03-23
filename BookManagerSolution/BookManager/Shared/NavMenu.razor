@@ -1,0 +1,93 @@
+﻿<div class="sidebar">
+    <div class="logo-container">
+        <h3>BookManager</h3>
+    </div>
+    <nav>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <NavLink class="nav-link" href="/books" Match="NavLinkMatch.All">
+                    <span class="nav-icon">📚</span>
+                    <span class="nav-text">Libros</span>
+                </NavLink>
+            </li>
+            <li class="nav-item">
+                <NavLink class="nav-link" href="/create-book">
+                    <span class="nav-icon">➕</span>
+                    <span class="nav-text">Agregar Libro</span>
+                </NavLink>
+            </li>
+            <li class="nav-item">
+                <NavLink class="nav-link" href="/authors">
+                    <span class="nav-icon">👨‍🏫</span>
+                    <span class="nav-text">Autores</span>
+                </NavLink>
+            </li>
+            <li class="nav-item">
+                <NavLink class="nav-link" href="/create-author">
+                    <span class="nav-icon">➕</span>
+                    <span class="nav-text">Agregar Autor</span>
+                </NavLink>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<style>
+    .sidebar {
+        width: 250px;
+        height: 100vh;
+        background-color: #2c3e50;
+        color: white;
+        position: fixed;
+        left: 0;
+        top: 0;
+        padding: 0;
+        box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+    }
+
+    .logo-container {
+        padding: 20px;
+        text-align: center;
+        border-bottom: 1px solid #34495e;
+    }
+
+    .nav-menu {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .nav-item {
+        margin: 0;
+        padding: 0;
+    }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        text-decoration: none;
+        color: #ecf0f1;
+        transition: all 0.3s ease;
+    }
+
+    .nav-link:hover {
+        background-color: #34495e;
+        border-left: 4px solid #3498db;
+    }
+
+    .nav-link.active {
+        background-color: #34495e;
+        border-left: 4px solid #3498db;
+        font-weight: bold;
+    }
+
+    .nav-icon {
+        margin-right: 10px;
+        font-size: 1.2em;
+    }
+
+    .nav-text {
+        font-size: 0.9em;
+    }
+</style>

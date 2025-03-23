@@ -1,0 +1,215 @@
+﻿@page "/edit-author/{Id:int}"
+@inject AuthorService AuthorService
+@inject NavigationManager Navigation
+
+<div class="edit-author-container">
+    <div class="form-container">
+        <h3 class="form-title">Editar Autor</h3>
+
+        @if (author == null)
+        {
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <p>Cargando información del autor...</p>
+            </div>
+        }
+        else
+        {
+            @if (message != null)
+            {
+                <div class="@(message.Contains("error") ? "alert alert-danger" : "alert alert-success")">
+                    @message
+                </div>
+            }
+
+            <div class="form-group">
+                <label>Nombre Completo: <span class="required">*</span></label>
+                <input class="form-control" @bind="author.FullName" />
+            </div>
+
+            <div class="form-group">
+                <label>Fecha de Nacimiento: <span class="required">*</span></label>
+                <input class="form-control" type="date" @bind="author.DateOfBirth" />
+            </div>
+
+            <div class="form-group">
+                <label>Ciudad:</label>
+                <input class="form-control" @bind="author.City" />
+            </div>
+
+            <div class="form-group">
+                <label>Email: <span class="required">*</span></label>
+                <input class="form-control" @bind="author.Email" />
+            </div>
+
+            <div class="form-footer">
+                <button class="btn btn-secondary" @onclick="@(() => Navigation.NavigateTo($"/author/{Id}"))">Cancelar</button>
+                <button class="btn btn-primary" @onclick="@HandleUpdateAuthor">Guardar Cambios</button>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Author author;
+    private string message;
+
+    protected override async Task OnInitializedAsync()
+    {
+        author = await AuthorService.GetAuthorByIdAsync(Id);
+    }
+
+    private async Task HandleUpdateAuthor()
+    {
+        // Crear un DTO para la actualización
+        var updateAuthorDTO = new UpdateAuthorDTO
+        {
+            Id = author.Id,
+            FullName = author.FullName,
+            DateOfBirth = author.DateOfBirth,
+            City = author.City,
+            Email = author.Email
+        };
+
+        bool success = await AuthorService.UpdateAuthorAsync(updateAuthorDTO);
+        message = success ? "Autor actualizado exitosamente" : "Error al actualizar el autor";
+        
+        if (success)
+        {
+            // Esperar un poco para mostrar el mensaje de éxito antes de navegar
+            await Task.Delay(1500);
+            Navigation.NavigateTo($"/author/{Id}");
+        }
+    }
+}
+
+<style>
+    .edit-author-container {
+        padding: 20px;
+    }
+
+    .form-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 30px;
+    }
+
+    .form-title {
+        color: #2c3e50;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.25);
+    }
+
+    label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .required {
+        color: #e74c3c;
+        margin-left: 4px;
+    }
+
+    .form-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 30px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background-color 0.3s;
+    }
+
+    .btn-primary {
+        background-color: #3498db;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #2980b9;
+    }
+
+    .btn-secondary {
+        background-color: #95a5a6;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #7f8c8d;
+    }
+
+    .alert {
+        padding: 12px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 0;
+    }
+
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-left-color: #3498db;
+        animation: spin 1s linear infinite;
+        margin-bottom: 15px;
+    }
+
+    @@keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
